@@ -1,0 +1,298 @@
+<html>
+	<head>
+		<style>
+			body[data-page-name="order-receipt"] {
+				background-color: #eeee;
+			}
+
+			.receipt-page-holder {
+				padding: 10px;
+			}
+
+			.receipt-page{
+				background-color: #fff;
+				padding: 15mm;
+				margin: auto;
+				width: 210mm;
+				min-height: 279mm;
+				font-family: Times,Times New Roman,serif;
+				font-size: 12pt;
+				font-weight: 400;
+				line-height: 1.3333333;
+				box-shadow: 0 2px 9px 1px rgb(0 0 0 / 25%);
+			}
+
+			.receipt-page .receipt-page-inner {
+				margin: auto;
+				min-height: 249mm;
+			}
+
+			.receipt-header{
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+
+				padding: 16px 0;
+
+				-moz-box-align: center; /* Mozilla */
+        		-webkit-box-align: center;
+				box-align : center;
+				align-items: center;
+
+				-webkit-box-pack: justify;
+				justify-content: space-between;
+				font-size: 18pt;
+				font-weight: 600;
+			}
+
+			.receipt-header-logo {
+				width: 140px;
+				height: 28px;
+				/* width: -webkit-fill-available; */
+			}
+
+			.receipt-top-info {
+				border-top: 2.5pt solid #8dadae;
+				border-bottom: 2.5pt solid #8dadae;
+				display: -webkit-box;
+				display: flex;
+				align-items: stretch;
+				-webkit-box-pack: justify;
+				justify-content: space-between;
+				margin-bottom: 36pt;
+				overflow-wrap: break-word;
+				word-wrap: break-word;
+				word-break: break-word;
+			}
+
+			.receipt-top-info-item {
+				flex-grow: 2;
+				max-width: 55%;
+			}
+
+			.receipt-padded {
+				padding: 2pt 4pt;
+			}
+
+			.receipt-top-info-spacer {
+				background-color: #bacdce;
+				width: 4em;
+				flex-shrink: 0;
+			}
+
+			.receipt-top-info-item {
+				flex-grow: 2;
+				max-width: 55%;
+			}
+
+			.receipt-top-info-item th{
+				font-weight: inherit;
+				padding: 2pt 4pt;
+				text-align: left;
+				white-space: nowrap;
+			}
+
+			table{
+				width: 100%;
+				border-collapse: collapse;
+				border-spacing: 0;
+			}
+
+			.receipt-itemisation-table th{
+				background-color: #bacdce;
+				font-weight: 600;
+				text-align: center;
+			}
+
+			th[data-col = 'description']{
+				text-align: left;
+			}
+
+			td[data-col="units"], td[data-col="costperunit"], td[data-col="amount"]{
+				text-align: right;
+			}
+
+			.receipt-itemisation-table td{
+				background-color: #e7eeee;
+				padding: 2pt 4pt;
+			}
+
+			.receipt-itemisation-table-order-info td{
+				background-color: #e7eeee;
+				padding-top: 40pt;
+				padding-bottom: 40pt;
+			}
+
+			.receipt-itemisation-table-description{
+				width: 60%;
+			}
+
+			td[data-col="summarylabel"]{
+				text-align: right;
+				border-right: 2.5pt solid #8dadae;
+			}
+
+			tfoot td[data-col="summarylabel"], tfoot td[data-col="amount"]{
+				background-color: #fff;
+			}
+
+			.receipt-itemisation-table-last-row td[data-col="summarylabel"], .receipt-itemisation-table-last-row td[data-col="amount"]{
+				border-top: 2.5pt solid #8dadae;
+				font-weight: 600;
+				background-color: #bacdce;
+				text-transform: uppercase;
+			}
+
+			.receipt-signoff{
+				margin-top: 36pt;
+				text-align: center;
+				font-weight: 600;
+			}
+		</style>
+	</head>
+  <body>
+    <div class="receipt-page-holder">
+			<div class="receipt-page" lang="en-US">
+				<div class="receipt-page-inner">
+					<header>
+						<div class="receipt-header">
+							<div>{{.Translations.HeaderTitle}}</div>
+							<!-- width=340 height=98 -->
+							<img class="receipt-header-logo" alt="Osmo" src="https://images.playosmo.com/osmo-logo/osmo-logo.svg" />
+						</div>
+					</header>
+							<div class="receipt-top-info">
+								<div class="receipt-top-info-item receipt-padded">
+									{{.Translations.OsmoBridging}}<br/>
+									<br/>
+									<br/>
+									{{.Translations.OsmoAddressLine1}}<br/>
+									{{.Translations.OsmoAddressLine2}}<br/>
+									{{.Translations.OsmoAddressLine3}}<br/>
+									{{if and .ShowVat (getVatID .ShippingCountry)}}
+									{{.Translations.VatID}} {{getVatID .ShippingCountry}}
+									{{end}}
+									<br/>
+									{{.Translations.OsmoUrl}}<br/>
+									{{.Translations.ContactEmail .ShippingCountry}}<br/>
+								</div>
+								<div class="receipt-top-info-spacer"></div>
+								<div class="receipt-top-info-item">
+									<table>
+										<tbody>
+											<tr>
+												<th>{{.Translations.ReceiptNumber}}</th>
+												<td>{{.ReceiptID}}</td>
+											</tr>
+											<tr>
+												<th>{{.Translations.ReceiptDate}}</th>
+												<td>{{formatDate .CreatedOn .Locale}}</td>
+											</tr>
+											<tr>
+												<th>{{.Translations.BillTo}}</th>
+												<td>{{.BillingToName}}</td>
+											</tr>
+											<tr>
+												<th>{{.Translations.Address}}</th>
+												<td>
+													{{range .BillingToAddressLines}}
+														{{if .|len}}<div>{{.}}</div>{{end}}
+													{{end}}
+												</td>
+											</tr>
+											<tr>
+												<th>{{.Translations.Phone}}</th>
+												<td>{{.BillingToPhoneNumber}}</td>
+											</tr>
+											<tr>
+												<th>{{.Translations.Email}}</th>
+												<td><div>{{.OrderEmail}}</div></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<table class="receipt-itemisation-table">
+								<thead>
+									<tr>
+										<th data-col="description">{{.Translations.Description}}</th>
+										<th data-col="units">{{.Translations.Units}}</th>
+										<th data-col="costperunit">{{.Translations.CostUnit}}</th>
+										<th data-col="amount">{{.Translations.Amount}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{{range .Items}}
+										<tr data-discount="{{if .IsDiscount}} y {{end}}">
+											<td class="receipt-itemisation-table-description" data-col="description">{{.Description}}</td>
+											<td data-col="units">{{.Quantity}}</td>
+											<td data-col="costperunit">{{formatPrice .UnitPrice $.Currency $.Country}}</td>
+											<td data-col="amount">{{formatPrice .CombinedPrice $.Currency $.Country}}</td>
+										</tr>
+									{{end}}
+									<tr class="receipt-itemisation-table-order-info">
+										<td colSpan="4">
+											<div>
+												{{if le .BalanceDue 0}} {{.Translations.OrderPaid}} {{end}}
+												{{if and (eq .PaymentMethod "stripe") (ne .LastFour "") }} {{if eq .TokenMethod "apple_pay"}} {{.Translations.ApplePay}} {{else}} {{.Translations.CreditCardDigits}}{{.LastFour}} {{end}} {{end}}
+												{{if eq .PaymentMethod "paypal"}} {{.Translations.PayPal}} {{end}}
+												{{if eq .PaymentMethod "affirm"}} {{.Translations.Affirm}} {{end}}
+											</div>
+											<div>{{.Translations.OrderNumber}} {{.OrderID}}</div>
+											<div>{{.Translations.OrderPlacedOn}} {{formatDate .CreatedOn .Locale}}</div>
+										</td>
+									</tr>
+									<tr>
+										<td colSpan="3" data-col="summarylabel">{{if .ShowVat}} {{.Translations.OrderSubtotalWithVat}} {{else}} {{.Translations.OrderSubtotal}} {{end}}</td>
+										<td data-col="amount">{{formatPrice .OrderSubtotal .Currency .Country .ShowVat .IncludedVatAmount}}</td>
+									</tr>
+								</tbody>
+								<tfoot>
+									{{if .ShowSalesTax}}
+										<tr>
+											<td colSpan="3" data-col="summarylabel">{{.Translations.SalesTax}}</td>
+											<td data-col="amount">{{formatPrice .OrderTaxPaid .Currency .Country}}</td>
+										</tr>
+									{{end}}
+									{{if .ShowVat}}
+											<tr>
+												<td colSpan="3" data-col="summarylabel">{{.Translations.CartVat .IncludedVatRate}}</td>
+												<td data-col="amount">{{formatPrice .IncludedVatAmount .Currency .Country}}</td>
+											</tr>
+											<tr>
+												<td colSpan="3" data-col="summarylabel">{{.Translations.OrderTotalWithVat}}</td>
+												<td data-col="amount">{{formatPrice .Total .Currency .Country}}</td>
+											</tr>
+									{{end}}
+									<tr>
+										<td colSpan="3" data-col="summarylabel">{{.Translations.Shipping}}</td>
+										<td data-col="amount">{{formatPrice .OrderShippingCost .Currency .Country}}</td>
+									</tr>
+									{{if ne .OsmoCreditsUsed 0}}
+									<tr>
+										<td colSpan="3" data-col="summarylabel">{{.Translations.OsmoCreditsUsed}}</td>
+										<td data-col="amount">{{formatPrice .OsmoCreditsUsed .Currency .Country}}</td>
+									</tr>
+									{{end}}
+									<tr>
+										<td colSpan="3" data-col="summarylabel">{{.Translations.PaymentReceived}}</td>
+										<td data-col="amount">{{formatPrice .PaymentReceived .Currency .Country}}</td>
+									</tr>
+									<tr class="receipt-itemisation-table-last-row">
+										<td colSpan="3" data-col="summarylabel">{{.Translations.Balance}} {{.Currency}}</td>
+										<td data-col="amount">{{formatPrice .BalanceDue .Currency .Country}}</td>
+									</tr>
+								</tfoot>
+							</table>
+
+							<div class="receipt-signoff">
+								{{.Translations.ThankYou}}
+							</div>
+				</div>
+			</div>
+		</div>
+  </body>
+</html>
